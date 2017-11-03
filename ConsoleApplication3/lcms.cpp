@@ -435,8 +435,7 @@ void resolved_issues()
 {
 	//requierd data
 	SQLINTEGER issueId , adminId;
-	char flag = 'n';
-	SQLTIMESTAMP* dateOfSolve = (SQLTIMESTAMP*) malloc (sizeof(SQLTIMESTAMP) * SQL_TIMESTAMP_LEN);
+	SQLCHAR* dateOfSolve = (SQLCHAR*)malloc(sizeof(SQLCHAR) * 15);
 	SQLCHAR* syntax = (SQLCHAR*)"INSERT INTO resolved_issue values (?,?,?)";
 
 
@@ -445,8 +444,8 @@ void resolved_issues()
 	scanf_s("%d", &issueId);
 	printf("Enter the adminId who solved the issue: ");
 	scanf_s("%d", &adminId);
-    printf("Enter the date in the following format (YY-MM-DD HH:MM:SS) : ");
-	scanf_s("%s", (SQLCHAR*)dateOfSolve,SQL_TIMESTAMP_LEN);
+    printf("Enter the date in the following format (YY-MM-DD) : ");
+	scanf_s("%s", dateOfSolve,12);
 
 
 	//preparing sql statement
@@ -472,7 +471,7 @@ void resolved_issues()
 		exit(-1);
 	}
 	
-	ret_sql = SQLBindParameter(hstmt_sql, 3, SQL_PARAM_INPUT, SQL_C_TIMESTAMP, SQL_TIMESTAMP, SQL_TIMESTAMP_LEN, 0, &dateOfSolve, SQL_TIMESTAMP_LEN, NULL);
+	ret_sql = SQLBindParameter(hstmt_sql, 3, SQL_PARAM_INPUT, SQL_C_CHAR, SQL_DATE, SQL_DATE_LEN, 0, dateOfSolve, SQL_DATE_LEN, NULL);
 
 	if (ret_sql != SQL_SUCCESS) {
 		show_error("Binding paramter issueId for resolved_issue", SQL_HANDLE_STMT, hstmt_sql);
