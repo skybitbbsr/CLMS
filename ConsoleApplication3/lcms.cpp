@@ -490,3 +490,247 @@ void resolved_issues()
 	printf("Successfully executed!");
 }
 
+void del_lodge_complaints()
+{
+
+
+	//required data for complaint table
+	SQLINTEGER issueId;
+	SQLCHAR* syntax = (SQLCHAR*)"DELETE FROM lodged_issue WHERE issueId = ?";
+
+
+	//Getting all the inputs from the users
+	printf("Enter Issue ID: ");
+	scanf_s("%d", &issueId);
+
+
+	//Preparing sql syntax to execute
+	ret_sql = SQLPrepareA(hstmt_sql, syntax, SQL_NTS);
+
+	if (ret_sql != SQL_SUCCESS) {
+		show_error("Preparing sql statement", SQL_HANDLE_STMT, hstmt_sql);
+
+		exit(-1);
+	}
+
+	//After preparing the statemant next work is to bind the param
+	ret_sql = SQLBindParameter(hstmt_sql, 1, SQL_PARAM_INPUT, SQL_INTEGER, SQL_INTEGER, 11, 0, &issueId, 11, NULL);
+
+	if (ret_sql != SQL_SUCCESS) {
+		show_error("binding student_id", SQL_HANDLE_STMT, hstmt_sql);
+		exit(-1);
+	}
+	
+	//Executing prepared sql statements
+
+
+	ret_sql = SQLExecute(hstmt_sql);
+
+	if (ret_sql != SQL_SUCCESS) {
+		show_error("deleting data from complaint", SQL_HANDLE_STMT, hstmt_sql);
+		exit(-2);
+	}
+
+	printf("Successfully deleted!");
+}
+
+void del_student()
+{
+	SQLINTEGER stuId;
+	SQLCHAR syntax[] = "DELETE FROM student WHERE stuId = ?)";
+
+
+	//Getting data 
+	printf("Enter the student id :");
+	scanf_s("%d", &stuId);
+
+
+	//preparing sql syntax
+	ret_sql = SQLPrepareA(hstmt_sql, syntax, SQL_NTS);
+	if (ret_sql != SQL_SUCCESS) {
+		show_error("studnet sql syntax", SQL_HANDLE_STMT, hstmt_sql);
+		exit(-1);
+	}
+
+
+	ret_sql = SQLBindParameter(hstmt_sql, 5, SQL_PARAM_INPUT, SQL_INTEGER, SQL_INTEGER, 11, 0, &stuId, 11, NULL);
+
+	if (ret_sql != SQL_SUCCESS) {
+		show_error("binding rn paramter student", SQL_HANDLE_STMT, hstmt_sql);
+		exit(-1);
+	}
+
+
+	ret_sql = SQLExecute(hstmt_sql);
+
+	if (ret_sql != SQL_SUCCESS) {
+		show_error("deleting data from complaint", SQL_HANDLE_STMT, hstmt_sql);
+		exit(-2);
+	}
+
+	printf("Successfully deleted!");
+
+
+}
+
+void del_admin()
+{
+
+	//required data to insert
+	SQLINTEGER  adminId;
+	SQLCHAR* syntax = (SQLCHAR*)"DELETE FROM admin WHERE adminId = ?)";
+
+	//Getting data
+	printf("Enter admin ID: ");
+	scanf_s("%d", &adminId);
+
+	//preparing sql statement
+	ret_sql = SQLPrepareA(hstmt_sql, syntax, SQL_NTS);
+
+	if (ret_sql != SQL_SUCCESS) {
+		show_error("preparing admin sql syntax", SQL_HANDLE_STMT, hstmt_sql);
+		exit(-1);
+	}
+
+	//binding the parameter
+	ret_sql = SQLBindParameter(hstmt_sql, 1, SQL_PARAM_INPUT, SQL_INTEGER, SQL_INTEGER, 11, 0, &adminId, 11, NULL);
+
+	if (ret_sql != SQL_SUCCESS) {
+		show_error("binding admin id", SQL_HANDLE_STMT, hstmt_sql);
+		exit(-1);
+	}
+
+	//Executing sql syntax
+	ret_sql = SQLExecute(hstmt_sql);
+
+	if (ret_sql != SQL_SUCCESS) {
+		show_error("deleting data from student", SQL_HANDLE_STMT, hstmt_sql);
+		exit(-1);
+	}
+
+	printf("Successfully deleted!");
+}
+
+void del_lab()
+{
+
+	//Required data for lab
+	SQLINTEGER labId;
+	SQLCHAR* syntax = (SQLCHAR*)"DELETE FROM lab WHERE labId = ?";
+
+	//getting data
+	printf("Enter labId: ");
+	scanf_s("%d", &labId);
+
+	//preparing sql syntax
+	ret_sql = SQLPrepareA(hstmt_sql, syntax, SQL_NTS);
+	if (ret_sql != SQL_SUCCESS) {
+		show_error("preparing sql querry lab", SQL_HANDLE_STMT, hstmt_sql);
+		exit(-1);
+	}
+
+	//binding paramters
+	ret_sql = SQLBindParameter(hstmt_sql, 1, SQL_PARAM_INPUT, SQL_INTEGER, SQL_INTEGER, 10, 0, &labId,
+		10, NULL);
+
+	if (ret_sql != SQL_SUCCESS) {
+		show_error("binding labid", SQL_HANDLE_STMT, hstmt_sql);
+		exit(-1);
+	}
+
+	//Executing stament
+
+	ret_sql = SQLExecute(hstmt_sql);
+	if (ret_sql != SQL_SUCCESS) {
+		show_error("deleting datat from lab", SQL_HANDLE_STMT, hstmt_sql);
+		exit(-1);
+	}
+
+	printf("Successfully deleted!");
+
+}
+
+void del_machine()
+{
+
+	SQLINTEGER  machineId;
+	SQLCHAR* syntax = (SQLCHAR*) "DELETE FROM  machine WHERE machineId = ?)";
+
+	//getting data
+	printf("Enter the computerId: ");
+	scanf_s("%d", &machineId);
+
+	//preparing sql syntax
+	ret_sql = SQLPrepareA(hstmt_sql, syntax, SQL_NTS);
+	if (ret_sql != SQL_SUCCESS) {
+		show_error("preparing syntax for machine", SQL_HANDLE_STMT, hstmt_sql);
+		exit(-1);
+	}
+
+
+	// binding sql paramter
+	ret_sql = SQLBindParameter(hstmt_sql, 1, SQL_PARAM_INPUT, SQL_INTEGER, SQL_INTEGER, 11, 0, &machineId,
+		11, NULL);
+
+	if (ret_sql != SQL_SUCCESS) {
+		show_error("binding machineId for machine", SQL_HANDLE_STMT, hstmt_sql);
+		exit(-1);
+	}
+
+	//executing syntax
+	ret_sql = SQLExecute(hstmt_sql);
+
+	if (ret_sql != SQL_SUCCESS) {
+		show_error("deleting data from machine", SQL_HANDLE_STMT, hstmt_sql);
+		exit(-1);
+	}
+
+	printf("Successfully deleted!");
+
+
+}
+
+void del_resolved_issues()
+{
+
+	//requierd data
+	SQLINTEGER issueId;
+	SQLCHAR* syntax = (SQLCHAR*)"DELETE FROM resolved_issue WHERE issueId = ?";
+
+
+	//getting user data
+	printf("Enter issueId: ");
+	scanf_s("%d", &issueId);
+
+
+	//preparing sql statement
+	ret_sql = SQLPrepareA(hstmt_sql, syntax, SQL_NTS);
+
+	if (ret_sql != SQL_SUCCESS) {
+		show_error("preparing synatx for resolved issue", SQL_HANDLE_STMT, hstmt_sql);
+		exit(-1);
+	}
+
+	//binding paramters
+	ret_sql = SQLBindParameter(hstmt_sql, 1, SQL_PARAM_INPUT, SQL_INTEGER, SQL_INTEGER, 11, 0, &issueId, 11, NULL);
+
+	if (ret_sql != SQL_SUCCESS) {
+		show_error("Binding paramter issueId for resolved_issue", SQL_HANDLE_STMT, hstmt_sql);
+		exit(-1);
+	}
+
+	//executing syntax
+	ret_sql = SQLExecute(hstmt_sql);
+
+	if (ret_sql != SQL_SUCCESS) {
+		show_error("deleting record from resolved_issue", SQL_HANDLE_STMT, hstmt_sql);
+		exit(-1);
+	}
+
+	printf("Successfully deleted!");
+
+}
+
+
+
+
