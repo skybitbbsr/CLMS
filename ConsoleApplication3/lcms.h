@@ -23,6 +23,17 @@ void free_handle(); //Test passed
 void show_error(char* , SQLSMALLINT , SQLHANDLE ); //Test passed
 
 
+//Authentication function or log in function
+void authentiation();
+char greeting(struct tm* localtime);
+
+
+
+//object functionalites
+void student_func();
+void admin_func();
+
+
 //Functions for adding table data
 void lodge_complaints(); //Test passed
 void add_student(); //Test passed
@@ -30,14 +41,16 @@ void add_admin();// Teste passed
 void add_lab(); //Test passed
 void add_machine();//Tesh passed
 void resolved_issues(); //Test passed
+void display_complaints(); //TTest Passed
 
+void weekly_status (); 
 
 //Functions for deleting record
 void del_lodge_complaints(); 
-void del_student(); 
-void del_admin();
-void del_lab(); 
-void del_machine();
+void del_student(); //Test passed
+void del_admin();//Test passed
+void del_lab(); //Test passed
+void del_machine();//Test passed
 void del_resolved_issues(); 
 
 #endif

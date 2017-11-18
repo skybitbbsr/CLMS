@@ -1,5 +1,5 @@
 #include "lcms.h"
-
+#include <time.h>
 
 
 SQLHENV henv_sql;
@@ -74,6 +74,81 @@ void show_error(char* purp, SQLSMALLINT type, SQLHANDLE handle) {
 
 	while (SQLGetDiagRec(type, handle, ++i, state, &native, text, sizeof(text), &size) == SQL_SUCCESS) {
 		fwprintf(stderr, L"%s:%ld:%ld:%s\n", state, i, native, text);
+	}
+
+}
+
+char greeting(tm * localtime)
+{
+	if (((localtime->tm_hour) > 5) && ((localtime->tm_hour) <= 11))
+		return 'm';
+	else if (((localtime->tm_hour) >= 12) && (((localtime->tm_hour) <= 16)))
+		return 'a';
+	else
+		return 'e';
+}
+
+//Student Interface for the project
+void student_func(){
+
+	char choice;
+
+	printf("\n1. Lodge a complaint about any computer that you experiencing trouble using it.");
+	printf("\n2. Show the weekly status of every computer.");
+	printf("\n3. Exit from the menu.");
+again:
+	scanf_s(" %c", &choice);
+
+	switch (choice)
+	{
+	case '1':
+		lodge_complaints();
+		break;
+	case '2':
+//		weekly_status();
+		break;
+	case '3':
+		return;
+	default:
+		printf("\nnot a valid option!");
+		printf("\nEnter choice again: ");
+		goto again;
+	}
+
+}
+
+void admin_func(){
+
+	char choice;
+
+	printf("\n1. Add a trusted admin for maintenance");
+	printf("\n2. Add a student who can lodge complaints");
+	printf("\n3. Add a computer lab");
+	printf("\n4. Delete an existing student");
+	printf("\n5. Delete an existing lab");
+	printf("\n6. Delete an existing admin");
+	printf("\n7. Display the issues of all the computers");
+	printf("\n8. resolved an issue");
+	printf("\n9. Show the weekly status of every computer.");
+	
+
+again:
+	scanf_s(" %c", &choice);
+
+	switch (choice)
+	{
+	case '1':
+		lodge_complaints();
+		break;
+	case '2':
+		//		weekly_status();
+		break;
+	case '3':
+		return;
+	default:
+		printf("\nnot a valid option!");
+		printf("\nEnter choice again: ");
+		goto again;
 	}
 
 }
@@ -238,15 +313,20 @@ void add_admin() {
 
 	//required data to insert
 	SQLINTEGER  adminId;
+	SQLCHAR* registrationNumber = (SQLCHAR*)malloc(sizeof(SQLCHAR) * 20);
 	SQLCHAR* name = (SQLCHAR*)malloc(sizeof(SQLCHAR*) * 40);
-	SQLCHAR* syntax = (SQLCHAR*)"INSERT INTO admin values (?,?)";
+	SQLCHAR* syntax = (SQLCHAR*)"INSERT INTO admin values (?,?,?)";
 
 	//Getting data
 	printf("Enter admin ID: ");
 	scanf_s("%d", &adminId);
 
 	printf("Enter admin name:");
-	scanf_s("%s", name,40);
+	scanf_s(" %[^\n]", name,40);
+
+	printf("Enter registration number: ");
+	scanf_s(" %s", registrationNumber, 20);
+
 
 	//preparing sql statement
 	ret_sql = SQLPrepareA(hstmt_sql, syntax, SQL_NTS);
@@ -268,6 +348,13 @@ void add_admin() {
 
 	if (ret_sql != SQL_SUCCESS) {
 		show_error("binding admin name", SQL_HANDLE_STMT, hstmt_sql);
+		exit(-1);
+	}
+
+	ret_sql = SQLBindParameter(hstmt_sql, 3, SQL_PARAM_INPUT, SQL_C_CHAR, SQL_CHAR, 20, 0, registrationNumber, 20, NULL);
+
+	if (ret_sql != SQL_SUCCESS) {
+		show_error("binding admin registration", SQL_HANDLE_STMT, hstmt_sql);
 		exit(-1);
 	}
 
@@ -490,6 +577,56 @@ void resolved_issues()
 	printf("Successfully executed!");
 }
 
+void display_complaints()
+{
+	SQLINTEGER issueId, stuId, machineId;
+	SQLCHAR dateOfIssue[SQL_TIMESTAMP_LEN];
+	SQLCHAR* problemType = (SQLCHAR*)malloc(sizeof(SQLCHAR) * 10), *description = (SQLCHAR*)malloc(sizeof(SQLCHAR) * 45);
+	SQLCHAR* syntax = (SQLCHAR*) "select * from lodged_issue where issueId not in (select issueId from resolved_issue);";
+	int len;
+
+	ret_sql= SQLPrepareA(hstmt_sql, syntax, SQL_NTS);
+	if (ret_sql != SQL_SUCCESS) {
+		show_error("Preparing sql syntax inside shoe lodged complaint", SQL_HANDLE_STMT, hstmt_sql);
+			exit(-1);
+	}
+	
+	ret_sql = 	SQLExecute(hstmt_sql);
+	if (ret_sql != SQL_SUCCESS) {
+		show_error("Executing sql syntax inside shoe lodged complaint", SQL_HANDLE_STMT, hstmt_sql);
+		exit(-1);
+	}
+
+	SQLBindCol(hstmt_sql, 1,SQL_INTEGER,&issueId, 11, NULL);
+	SQLBindCol(hstmt_sql, 2, SQL_INTEGER, &stuId, 11, NULL);
+	SQLBindCol(hstmt_sql, 3, SQL_INTEGER, &machineId, 11, NULL);
+	SQLBindCol(hstmt_sql, 4, SQL_C_CHAR, problemType, 25, NULL);
+	SQLBindCol(hstmt_sql, 5, SQL_C_CHAR, description, 45, NULL);
+	SQLBindCol(hstmt_sql, 6, SQL_C_CHAR, dateOfIssue,SQL_TIMESTAMP_LEN,NULL);
+
+
+	printf("%s\t%s\t%s\t%s\t%s\t%s\n", "ISSUE ID", "STU ID", "MACHINE ID", "PROBLEM TYPE", "DESCRIPTION", "DATE OF ISSUE");
+	do {
+			ret_sql = SQLFetch(hstmt_sql);
+		
+			if (ret_sql != SQL_NO_DATA) {
+					printf("%d\t\t%d\t\t%d\t\t%s\t\t%s\t\t%s", issueId, stuId, machineId, problemType, description, dateOfIssue);
+				}
+
+				printf("\n");
+	
+	} while (ret_sql != SQL_NO_DATA);
+
+
+}
+
+void weekly_status()
+{
+	//Show lodged complaints as well as resolved.
+}
+
+
+
 void del_lodge_complaints()
 {
 
@@ -573,12 +710,13 @@ void del_student()
 
 }
 
+
 void del_admin()
 {
 
 	//required data to insert
 	SQLINTEGER  adminId;
-	SQLCHAR* syntax = (SQLCHAR*)"DELETE FROM admin WHERE adminId = ?)";
+	SQLCHAR* syntax = (SQLCHAR*)"DELETE FROM admin WHERE adminId = ?";
 
 	//Getting data
 	printf("Enter admin ID: ");
@@ -610,6 +748,7 @@ void del_admin()
 
 	printf("Successfully deleted!");
 }
+
 
 void del_lab()
 {
@@ -654,7 +793,7 @@ void del_machine()
 {
 
 	SQLINTEGER  machineId;
-	SQLCHAR* syntax = (SQLCHAR*) "DELETE FROM  machine WHERE machineId = ?)";
+	SQLCHAR* syntax = (SQLCHAR*) "DELETE FROM  machine WHERE machineId = ?";
 
 	//getting data
 	printf("Enter the computerId: ");
@@ -732,5 +871,75 @@ void del_resolved_issues()
 }
 
 
+void authentiation()
+{
+
+	SQLCHAR* registrationNumber = (SQLCHAR*)malloc(sizeof(SQLCHAR) * 20);
+	time_t t;
+	char flag;
+	SQLCHAR* name = (SQLCHAR*)malloc(sizeof(SQLCHAR) * 40);
+	struct tm tm_time;
+	SQLCHAR* syntax_stu = (SQLCHAR*)"SELECT CONCAT(firstName,\' \',lastName) from student WHERE  registrationNumber = ?";
+	SQLCHAR* syntax_admin = (SQLCHAR*)"SELECT adminName FROM admin WHERE registrationNumber = ?";
+
+	time(&t);
+	localtime_s(&tm_time,&t);
+	flag = greeting(&tm_time);
+
+	printf("Would you please enter you Registration ID for logging in\n");
+	printf("REGISTRATION ID: ");
+	scanf_s("%s", registrationNumber,20);
+
+	//binding the paramter the first syntaxs
+	SQLPrepareA(hstmt_sql, syntax_stu, SQL_NTS);
+
+	SQLBindParameter(hstmt_sql, 1, SQL_PARAM_INPUT, SQL_C_CHAR, SQL_CHAR, 20, 0, registrationNumber, 20, NULL);
+	SQLBindCol(hstmt_sql, 1, SQL_C_CHAR, name, 40, NULL);
+	ret_sql = SQLExecute(hstmt_sql);
+	if (ret_sql == SQL_SUCCESS) {
+		SQLFetch(hstmt_sql);
+		switch (flag)
+		{
+		case 'm':
+			printf("Good morning %s\n", name);
+			break;
+		case 'a':
+			printf("Good afternoon .%s\n", name);
+			break;
+		case 'e':
+			printf("Good evening %s\n", name);
+			break;
+		}
+		printf("Here are the choice that you would like to do: ");
+	//	student_func();
+		exit(0);
+	}
+
+	SQLPrepareA(hstmt_sql, syntax_admin, SQL_NTS);
+	SQLBindParameter(hstmt_sql, 1, SQL_PARAM_INPUT, SQL_C_CHAR, SQL_CHAR, 20, 0, registrationNumber, 20, NULL);
+	SQLBindCol(hstmt_sql, 1, SQL_C_CHAR, name, 40, NULL);
+	ret_sql = SQLExecute(hstmt_sql);
 
 
+	if (ret_sql == SQL_SUCCESS) {
+	
+		switch (flag)
+		{
+		case 'm':
+			printf("Good morning %s\n", name);
+			break;
+		case 'a':
+			printf("Good afternoon %s\n", name);
+			break;
+		case 'e':
+			printf("Good evening %s\n", name);
+			break;
+		}
+		printf("Here are the choice that you would like to do: \n");
+		//admin_func();
+		exit(0);
+	}		
+
+	printf("\nSorry sir you are not listed as a autorized person to access the data.");
+	printf("\n Reffer Mr. Bikash Das to get access.");
+}

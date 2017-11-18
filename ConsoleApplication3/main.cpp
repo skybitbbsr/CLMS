@@ -7,8 +7,7 @@ int main() {
 	
 	
 	INITHandles((SQLCHAR*)"DSN=projectdb;USER=root;PASSWORD=chammakCHALO9@");
-	resolved_issues();
-	free_handle();
+	display_complaints();
 	getchar();
 
 		return 0;
